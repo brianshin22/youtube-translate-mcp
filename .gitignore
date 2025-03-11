@@ -1,0 +1,14 @@
+ ._*
+ ._.*
+ venv
+.cursor
+
+.env*
+!.env.example
+
+cleanup.sh
+
+docs/*
+!docs/api-reference.md
+
+examples
