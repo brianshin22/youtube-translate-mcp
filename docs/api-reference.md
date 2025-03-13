@@ -19,16 +19,12 @@ This comprehensive API documentation details how to interact with the YouTube Tr
 All API requests must include an API key in the `X-API-Key` header (except for the health check endpoint, which is public).
 
 ```bash
-curl -H "X-API-Key: YOUR_API_KEY" https://api.example.com/api/endpoint
+curl -H "X-API-Key: YOUR_API_KEY" https://api.youtubetranslate.com/api/endpoint
 ```
 
-### API Key Types
+### API Keys
 
-The system uses three types of API keys:
-
-1. **Master API Key**: Format `ut-master-xxxxxxxxxxxxx` (For internal backend-to-backend communication)
-2. **User API Key**: Format `ut-user-xxxxxxxxxxxxx` (For end users with subscription plans)
-3. **Application API Key**: Format `ut-app-xxxxxxxxxxxxx` (For application integrations)
+You can request an API key at https://youtubetranslate.com
 
 ## Health Check
 
@@ -43,7 +39,7 @@ GET /api/health
 **Example**
 
 ```bash
-curl http://localhost:3000/api/health
+curl https://api.youtubetranslate.com/api/health
 ```
 
 **Response**
@@ -66,7 +62,7 @@ All API endpoints support using a YouTube video ID directly instead of the inter
 ```bash
 # Using the YouTube ID directly (dQw4w9WgXcQ is the ID from https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 curl -H "X-API-Key: YOUR_API_KEY" \
-  http://localhost:3000/api/videos/dQw4w9WgXcQ
+  https://api.youtubetranslate.com/api/videos/dQw4w9WgXcQ
 ```
 
 **Example: Request translation using a YouTube ID**
@@ -76,14 +72,14 @@ curl -X POST \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"language": "fr"}' \
-  http://localhost:3000/api/videos/dQw4w9WgXcQ/translate
+  https://api.youtubetranslate.com/api/videos/dQw4w9WgXcQ/translate
 ```
 
 The API will automatically map the YouTube ID to the corresponding internal UUID if the video has been processed before.
 
 ### Submit a Video for Processing
 
-Submit a YouTube (or other supported platform) video for processing.
+Submit a YouTube or other supported video URL for processing.
 
 **Request**
 
@@ -100,8 +96,17 @@ POST /api/videos
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| url | string | Yes | URL of the video to process |
+| url | string | Yes | URL of the video to process (YouTube or other supported platforms) |
 | language | string | No | Language code for transcription (e.g., "en", "ko"). Default: auto-detect |
+
+**Processing Details**
+
+The video processing follows this workflow:
+1. Video metadata is immediately retrieved and stored
+2. Audio is extracted and converted to FLAC format
+3. The audio file is uploaded to S3 in the us-west-2 region
+4. Transcription is performed using Replicate's Whisper model
+5. Results are processed and made available through the API
 
 **Example**
 
@@ -110,7 +115,7 @@ curl -X POST \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"url": "https://www.youtube.com/watch?v=UmPNQ302ADU", "language": "ko"}' \
-  http://localhost:3000/api/videos
+  https://api.youtubetranslate.com/api/videos
 ```
 
 **Response**
@@ -146,7 +151,7 @@ GET /api/videos/:id
 
 ```bash
 curl -H "X-API-Key: YOUR_API_KEY" \
-  http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3
+  https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3
 ```
 
 **Response**
@@ -195,7 +200,7 @@ GET /api/videos/:id/transcript
 
 ```bash
 curl -H "X-API-Key: YOUR_API_KEY" \
-  http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/transcript
+  https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/transcript
 ```
 
 **Response**
@@ -242,7 +247,7 @@ GET /api/videos/:id/transcript/languages
 
 ```bash
 curl -H "X-API-Key: YOUR_API_KEY" \
-  http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/transcript/languages
+  https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/transcript/languages
 ```
 
 **Response**
@@ -290,7 +295,7 @@ curl -X POST \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"language": "en"}' \
-  http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/translate
+  https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/translate
 ```
 
 **Response**
@@ -330,7 +335,7 @@ GET /api/videos/:id/translate/:language/status
 
 ```bash
 curl -H "X-API-Key: YOUR_API_KEY" \
-  http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/translate/en/status
+  https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/translate/en/status
 ```
 
 **Response**
@@ -369,7 +374,7 @@ GET /api/videos/:id/transcript/:language
 
 ```bash
 curl -H "X-API-Key: YOUR_API_KEY" \
-  http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/transcript/en
+  https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/transcript/en
 ```
 
 **Response**
@@ -430,7 +435,7 @@ curl -X POST \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"language": "en", "length": "short"}' \
-  http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/summarize
+  https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/summarize
 ```
 
 **Response**
@@ -475,7 +480,7 @@ GET /api/videos/:id/summarize/status
 
 ```bash
 curl -H "X-API-Key: YOUR_API_KEY" \
-  "http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/summarize/status?language=en&length=short"
+  "https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/summarize/status?language=en&length=short"
 ```
 
 **Response**
@@ -519,7 +524,7 @@ GET /api/videos/:id/summary
 
 ```bash
 curl -H "X-API-Key: YOUR_API_KEY" \
-  "http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/summary?language=en&length=short"
+  "https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/summary?language=en&length=short"
 ```
 
 **Response**
@@ -569,7 +574,7 @@ curl -X POST \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"query": "fan club", "language": "en", "contextSize": 30}' \
-  http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/search
+  https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/search
 ```
 
 **Response**
@@ -631,7 +636,7 @@ curl -X POST \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"language": "en", "format": "srt"}' \
-  http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/subtitles
+  https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/subtitles
 ```
 
 **Response**
@@ -675,10 +680,10 @@ GET /api/videos/:id/subtitles/status
 
 ```bash
 curl -H "X-API-Key: YOUR_API_KEY" \
-  "http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/subtitles/status?language=en&format=srt"
+  "https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/subtitles/status?language=en&format=srt"
 ```
 
-**Response**
+**Response for Completed Status**
 
 ```json
 {
@@ -692,6 +697,30 @@ curl -H "X-API-Key: YOUR_API_KEY" \
   }
 }
 ```
+
+**Possible Status Values**
+
+The `data.status` field in the response may have these values:
+- `completed`: Subtitle generation is complete and ready to retrieve
+- `processing`: Subtitle generation is in progress
+- `not_found`: Subtitles don't exist yet and need to be generated
+- `error`: An error occurred during subtitle generation
+
+**Response for Not Found Status**
+
+```json
+{
+  "status": "success",
+  "data": {
+    "videoId": "09a67d85-13b5-4cb6-8ceb-1980e294faad",
+    "language": "en",
+    "format": "srt",
+    "status": "not_found"
+  }
+}
+```
+
+When a `not_found` status is received, you should submit a subtitle generation request with a POST to `/api/videos/:id/subtitles`.
 
 ### Get Subtitles
 
@@ -728,7 +757,7 @@ GET /api/videos/:id/subtitles
 
 ```bash
 curl -H "X-API-Key: YOUR_API_KEY" \
-  "http://localhost:3000/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/subtitles?language=en&format=srt"
+  "https://api.youtubetranslate.com/api/videos/ce356194-9c9e-465d-92d4-d00dd371f2a3/subtitles?language=en&format=srt"
 ```
 
 **Response**
