@@ -1,4 +1,5 @@
 # YouTube Translate MCP
+[![smithery badge](https://smithery.ai/badge/@brianshin22/youtube-translate-mcp)](https://smithery.ai/server/@brianshin22/youtube-translate-mcp)
 
 A [Model Context Protocol (MCP)](https://github.com/anthropics/anthropic-cookbook/tree/main/model_composition_protocol) server for accessing the YouTube Translate API, allowing you to obtain transcripts, translations, and summaries of YouTube videos.
 
@@ -11,6 +12,16 @@ A [Model Context Protocol (MCP)](https://github.com/anthropics/anthropic-cookboo
 - Search for specific content within videos
 
 ## Installation
+
+### Installing via Smithery
+
+To install youtube-translate-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@brianshin22/youtube-translate-mcp):
+
+```bash
+npx -y @smithery/cli install @brianshin22/youtube-translate-mcp --client claude
+```
+
+### Installing Manually
 
 This package requires Python 3.12 or higher:
 
