@@ -1,0 +1,25 @@
+type: stdio
+configSchema:
+  type: object
+  properties:
+    YOUTUBE_TRANSLATE_API_KEY:
+      type: string
+      description: YouTube Translate API key for accessing the service. Get it from https://youtubetranslate.com
+  required:
+    - YOUTUBE_TRANSLATE_API_KEY
+  additionalProperties: false
+
+commandFunction: |
+  function getCommand(config) {
+    const command = "youtube-translate-mcp";
+    const args = ["--transport", "stdio"];
+    
+    const env = {
+      "YOUTUBE_TRANSLATE_API_KEY": config.YOUTUBE_TRANSLATE_API_KEY
+    };
+    
+    return { command, args, env };
+  }
+
+build:
+  dockerBuildPath: "." 
