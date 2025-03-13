@@ -95,20 +95,12 @@ async def make_yt_api_request(endpoint: str, method: str = "GET", params: dict =
             
             logger.info(f"API response status: {response.status_code}")
             
-            # Check if the endpoint is for content retrieval (not status check)
-            # For certain endpoints like subtitles, the content may be plain text
-            # For others like summaries, the content should still be JSON
-            if "/subtitles?" in endpoint and not "/status?" in endpoint:
-                try:
-                    # First try to parse as JSON
-                    return response.json()
-                except Exception as e:
-                    # If JSON parsing fails, the response might be raw text
-                    logger.info(f"Received non-JSON response, treating as raw text: {str(e)}")
-                    return response.text
-            else:
-                # All other endpoints expect JSON responses
-                return response.json()
+            # If the endpoint is for subtitles, directly return the text content
+            if "/subtitles" in endpoint:
+                return response.text
+            
+            # For all other endpoints, return the JSON response
+            return response.json()
         except Exception as e:
             logger.error(f"API request error: {str(e)}")
             return None

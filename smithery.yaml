@@ -4,7 +4,7 @@ configSchema:
   properties:
     YOUTUBE_TRANSLATE_API_KEY:
       type: string
-      description: YouTube Translate API key for accessing the service. Get it from https://youtubetranslate.com
+      description: YouTube Translate API key for accessing the service
   required:
     - YOUTUBE_TRANSLATE_API_KEY
   additionalProperties: false
@@ -12,7 +12,6 @@ configSchema:
 commandFunction: |
   function getCommand(config) {
     const command = "youtube-translate-mcp";
-    const args = ["--transport", "stdio"];
     
     const env = {
       "YOUTUBE_TRANSLATE_API_KEY": config.YOUTUBE_TRANSLATE_API_KEY

@@ -1,3 +1,8 @@
+# Version control
+.git/
+.gitignore
+.gitattributes
+
 # Python
 __pycache__/
 *.py[cod]
@@ -57,20 +62,15 @@ htmlcov/
 pytest-report.xml
 .mypy_cache/
 
-# Environment files
-.env*
-!.env.example
-
-# Development tools
-cleanup.sh
-
 # Documentation
-docs/*
-!docs/api-reference.md
+docs/
 
 # Examples
 examples/
 
+# Development tools
+cleanup.sh
+
 # Jupyter Notebooks
 *.ipynb
-.ipynb_checkpoints/
+.ipynb_checkpoints/ 
