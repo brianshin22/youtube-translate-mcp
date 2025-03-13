@@ -1,24 +1,23 @@
-type: stdio
-configSchema:
-  type: object
-  properties:
-    YOUTUBE_TRANSLATE_API_KEY:
-      type: string
-      description: YouTube Translate API key for accessing the service
-  required:
-    - YOUTUBE_TRANSLATE_API_KEY
-  additionalProperties: false
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
 
-commandFunction: |
-  function getCommand(config) {
-    const command = "youtube-translate-mcp";
-    
-    const env = {
-      "YOUTUBE_TRANSLATE_API_KEY": config.YOUTUBE_TRANSLATE_API_KEY
-    };
-    
-    return { command, args, env };
-  }
-
-build:
-  dockerBuildPath: "." 
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - YOUTUBE_TRANSLATE_API_KEY
+    properties:
+      YOUTUBE_TRANSLATE_API_KEY:
+        type: string
+        description: YouTube Translate API key for accessing the service
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: "youtube-translate-mcp",
+      args: [],
+      env: { YOUTUBE_TRANSLATE_API_KEY: config.YOUTUBE_TRANSLATE_API_KEY }
+    })
+  exampleConfig:
+    YOUTUBE_TRANSLATE_API_KEY: YOUR_API_KEY_HERE
