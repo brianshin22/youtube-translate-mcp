@@ -283,22 +283,101 @@ async def get_translation(url: str, language: str) -> str:
         logger.error(f"Failed to process video: {error_message}")
         return f"Error: {error_message}"
     
-    # Get the translation from the API
-    translation_response = await make_yt_api_request(
-        f"/api/videos/{video_id}/translation",
-        params={"language": language}
-    )
+    # First try to get the transcript to make sure it exists
+    logger.info(f"Retrieving transcript before requesting translation")
+    transcript_response = await make_yt_api_request(f"/api/videos/{video_id}/transcript")
     
-    if not translation_response:
-        error_msg = f"Failed to retrieve translation for language: {language}"
+    if not transcript_response:
+        error_msg = "Failed to retrieve transcript. Cannot translate without a transcript."
         logger.error(error_msg)
         return f"Error: {error_msg}"
     
-    # Check if the response is a string or a JSON object
-    if isinstance(translation_response, str):
-        return translation_response
-    elif isinstance(translation_response, dict) and "translation" in translation_response:
-        return translation_response["translation"]
+    # Try to fetch the translated transcript directly first (it might already exist)
+    logger.info(f"Checking if translation for language {language} already exists")
+    translation_response = await make_yt_api_request(f"/api/videos/{video_id}/transcript/{language}")
+    
+    # If we got a valid response, return it
+    if translation_response and isinstance(translation_response, dict) and "status" in translation_response and translation_response["status"] == "success":
+        logger.info(f"Found existing translation for language {language}")
+        if "data" in translation_response and "text" in translation_response["data"]:
+            return translation_response["data"]["text"]
+        elif "data" in translation_response:
+            # Return whatever data we have
+            return json.dumps(translation_response["data"], indent=2)
+    
+    # If we don't have a translation yet, request one
+    logger.info(f"Requesting new translation for language {language}")
+    request_translation = await make_yt_api_request(
+        f"/api/videos/{video_id}/translate", 
+        method="POST", 
+        json_data={"language": language}
+    )
+    
+    if not request_translation:
+        error_msg = f"Failed to request translation for language: {language}"
+        logger.error(error_msg)
+        return f"Error: {error_msg}"
+    
+    # Check the status of the translation request
+    translation_status = None
+    max_attempts = 10
+    attempts = 0
+    
+    while attempts < max_attempts:
+        logger.info(f"Checking translation status, attempt {attempts+1}/{max_attempts}")
+        
+        status_response = await make_yt_api_request(
+            f"/api/videos/{video_id}/translate/{language}/status"
+        )
+        
+        if not status_response:
+            logger.error("Failed to retrieve translation status")
+            return "Error: Failed to retrieve translation status."
+        
+        if isinstance(status_response, dict) and "status" in status_response and "data" in status_response:
+            translation_status = status_response["data"].get("status")
+            logger.info(f"Translation status: {translation_status}")
+            
+            if translation_status == "completed":
+                logger.info(f"Translation completed for language: {language}")
+                break
+                
+            if translation_status == "error":
+                error_message = status_response.get("message", "Unknown error occurred")
+                logger.error(f"Error translating: {error_message}")
+                return f"Error: Translation failed: {error_message}"
+        
+        # Calculate backoff delay
+        delay = await calculate_backoff_delay(attempts)
+        logger.info(f"Waiting {delay:.1f}s before checking translation status again")
+        
+        await asyncio.sleep(delay)
+        attempts += 1
+    
+    if attempts >= max_attempts and translation_status != "completed":
+        logger.error("Translation timed out - too many attempts")
+        return "Error: Translation timed out. Please try again later."
+    
+    # Get the translated transcript
+    logger.info(f"Retrieving translated transcript for language: {language}")
+    translated_transcript = await make_yt_api_request(f"/api/videos/{video_id}/transcript/{language}")
+    
+    if not translated_transcript:
+        error_msg = f"Failed to retrieve translated transcript for language: {language}"
+        logger.error(error_msg)
+        return f"Error: {error_msg}"
+    
+    # Format the response based on what we received
+    if isinstance(translated_transcript, str):
+        return translated_transcript
+    elif isinstance(translated_transcript, dict):
+        if "data" in translated_transcript and "text" in translated_transcript["data"]:
+            return translated_transcript["data"]["text"]
+        elif "text" in translated_transcript:
+            return translated_transcript["text"]
+        else:
+            # Return the complete JSON response if we can't extract specific fields
+            return json.dumps(translated_transcript, indent=2)
     else:
         error_msg = "Unexpected response format from API."
         logger.error(error_msg)
