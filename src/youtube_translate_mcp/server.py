@@ -253,7 +253,7 @@ async def get_transcript(url: str) -> str:
     if isinstance(transcript_response, str):
         return transcript_response
     elif isinstance(transcript_response, dict) and "transcript" in transcript_response:
-        return transcript_response["transcript"]
+        return transcript_response["transcript"]["text"]
     else:
         error_msg = "Unexpected response format from API."
         logger.error(error_msg)
