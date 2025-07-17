@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/brianshin22-youtube-translate-mcp-badge.jpg)](https://mseep.ai/app/brianshin22-youtube-translate-mcp)
+
 # YouTube Translate MCP
 [![smithery badge](https://smithery.ai/badge/@brianshin22/youtube-translate-mcp)](https://smithery.ai/server/@brianshin22/youtube-translate-mcp)
 
