@@ -3,6 +3,10 @@
 
 A [Model Context Protocol (MCP)](https://github.com/anthropics/anthropic-cookbook/tree/main/model_composition_protocol) server for accessing the YouTube Translate API, allowing you to obtain transcripts, translations, and summaries of YouTube videos.
 
+<a href="https://glama.ai/mcp/servers/@brianshin22/youtube-translate-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@brianshin22/youtube-translate-mcp/badge" alt="YouTube Translate MCP server" />
+</a>
+
 ## Features
 
 - Get transcripts of YouTube videos
