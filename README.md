@@ -11,6 +11,42 @@ A [Model Context Protocol (MCP)](https://github.com/anthropics/anthropic-cookboo
 - Create summaries of video content
 - Search for specific content within videos
 
+## Hosted remote MCP
+
+Production endpoint: `https://api.youtubetranslate.com/mcp` using streamable HTTP.
+
+Send the caller's YouTube Translate API key on every request:
+
+```text
+X-API-Key: ut-user-...
+```
+
+For local stdio, `YOUTUBE_TRANSLATE_API_KEY` remains supported. The hosted server does not use one shared key: the request header is scoped to that request, so separate users do not share credentials.
+
+### Tools
+
+- `start_video`: queue a YouTube URL and return a job ID.
+- `get_video_status`: check processing state by job ID or YouTube ID.
+- `get_transcript`: return text or timestamped segments.
+- `get_translation`: request and return a translated transcript.
+- `get_subtitles`: generate and return translated SRT or VTT.
+- `get_summary`: generate short, medium, or long summaries.
+- `search_video`: find passages with global positions and timestamps.
+
+High-level tools wait up to `TOOL_TIMEOUT_SECONDS` (75 by default). Longer videos return a processing message and should be retried by the agent.
+
+### Run remotely
+
+```bash
+uv run youtube-translate-mcp --transport streamable-http --host 0.0.0.0 --port 8000
+```
+
+`MCP_ALLOWED_HOSTS` must include the public hostname used by the reverse proxy. Requests without `X-API-Key` are rejected.
+
+### ChatGPT and Claude
+
+Use the hosted URL and add an `X-API-Key` request header in the custom connector. Public directory submission is not complete; it requires OAuth, review materials, and test evidence. Do not promise in-chat purchase: current ChatGPT plugin rules prohibit selling digital credits through the plugin.
+
 ## Installation
 
 ### Installing via Smithery
