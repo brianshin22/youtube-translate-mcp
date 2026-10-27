@@ -18,6 +18,7 @@ from typing import Any, Optional
 import httpx
 import uvicorn
 from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver.exceptions import ToolError
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 from mcp.server.transport_security import TransportSecuritySettings
@@ -102,13 +103,29 @@ async def api_request(
 
 
 def error_text(error: Exception) -> str:
-    return f"Error: {error}"
+    raise ToolError(str(error)) from error
 
 
-async def submit_video(url: str) -> tuple[str, str]:
+async def submit_video(url: str, max_credit_units: Optional[int] = None) -> tuple[str, str]:
     if not extract_youtube_id(url):
         raise APIError("That does not look like a supported YouTube URL.")
-    result = await api_request("POST", "/api/videos", json_body={"url": url})
+    body={"url": url, **({"max_credit_units": max_credit_units} if max_credit_units is not None else {})}
+    try:
+        result = await api_request("POST", "/api/videos", json_body=body)
+    except APIError as error:
+        if "API 428" not in str(error):
+            raise
+        quote = await api_request("POST", "/api/processing/quote", json_body={"operation": "transcribe", "url": url})
+        pricing = quote.get("quote", {})
+        balance = quote.get("balance", {})
+        raise APIError(
+            "This video is not cached and needs an explicit spending approval. "
+            f"Maximum cost is {pricing.get('maximumCreditUnits', 'unknown')} microcredits "
+            f"(about ${pricing.get('maximumCreditUnits', 0) / 1_000_000:.2f}); "
+            f"the account has {balance.get('available', 'unknown')} available. "
+            "Ask the user to approve that maximum, then call start_video with max_credit_units. "
+            "Do not guess or exceed the approved amount."
+        ) from error
     video_id = result.get("id")
     if not video_id:
         raise APIError(f"Unexpected API response: {json.dumps(result)[:300]}")
@@ -149,8 +166,8 @@ def processing_note(video_id: str, status: str) -> str:
     )
 
 
-async def ensure_video(url: str, deadline: float) -> tuple[Optional[str], str]:
-    video_id, status = await submit_video(url)
+async def ensure_video(url: str, deadline: float, max_credit_units: Optional[int] = None) -> tuple[Optional[str], str]:
+    video_id, status = await submit_video(url, max_credit_units)
     if status != "completed":
         result = await wait_for_video(video_id, deadline)
         status = result.get("status", "processing")
@@ -161,11 +178,26 @@ async def ensure_video(url: str, deadline: float) -> tuple[Optional[str], str]:
     return video_id, ""
 
 
+@mcp.tool(name="get_processing_quote", description="Get a processing credit quote and account balance without starting paid work. Obtain explicit spending approval before using a budget.")
+async def get_processing_quote(url: str, operation: str = "transcribe", language: str = "en", length: str = "medium") -> str:
+    """Quote one operation. No purchase, wallet access, or provider work is performed."""
+    try:
+        video_id = extract_youtube_id(url)
+        if not video_id or operation not in ("transcribe", "translate", "summarize"):
+            raise APIError("Use a valid YouTube URL and transcribe, translate, or summarize.")
+        result = await api_request("POST", "/api/processing/quote", json_body={
+            "operation": operation, "url": url, "video_id": video_id, "language": language, "length": length,
+        })
+        return json.dumps(result, indent=2)
+    except Exception as error:
+        return error_text(error)
+
+
 @mcp.tool(name="start_video", description="Start processing a YouTube video and return its job ID without waiting.")
-async def start_video(url: str) -> str:
+async def start_video(url: str, max_credit_units: Optional[int] = None) -> str:
     """Queue a YouTube URL for transcript processing."""
     try:
-        video_id, status = await submit_video(url)
+        video_id, status = await submit_video(url, max_credit_units)
         return json.dumps(
             {
                 "video_id": video_id,
@@ -198,12 +230,12 @@ async def get_video_status(video_id: str) -> str:
         return error_text(error)
 
 
-@mcp.tool(name="get_transcript", description="Get a timestamped transcript of a YouTube video.")
-async def get_transcript(url: str, include_timestamps: bool = False) -> str:
+@mcp.tool(name="get_transcript", description="Use this when the user wants the words spoken in a YouTube video. Returns the transcript, optionally with timestamps. Cached public videos are free. For uncached videos, first call get_processing_quote and get the user's approval, then pass max_credit_units.")
+async def get_transcript(url: str, include_timestamps: bool = False, max_credit_units: Optional[int] = None) -> str:
     """Return transcript text, or timestamped segments when requested."""
     try:
         deadline = asyncio.get_running_loop().time() + TOOL_TIMEOUT
-        video_id, note = await ensure_video(url, deadline)
+        video_id, note = await ensure_video(url, deadline, max_credit_units)
         if not video_id:
             raise APIError("Video submission failed.")
         if note:
@@ -224,12 +256,12 @@ async def get_transcript(url: str, include_timestamps: bool = False) -> str:
         return error_text(error)
 
 
-@mcp.tool(name="get_translation", description="Translate a YouTube video transcript into a target language.")
-async def get_translation(url: str, language: str) -> str:
+@mcp.tool(name="get_translation", description="Use this when the user wants a YouTube transcript in another language. Cached results are free. For uncached work, pass an approved max_credit_units from get_processing_quote.")
+async def get_translation(url: str, language: str, max_credit_units: Optional[int] = None) -> str:
     """Translate a transcript. Use a two-letter ISO language code such as es or ko."""
     try:
         deadline = asyncio.get_running_loop().time() + TOOL_TIMEOUT
-        video_id, note = await ensure_video(url, deadline)
+        video_id, note = await ensure_video(url, deadline, max_credit_units)
         if not video_id:
             raise APIError("Video submission failed.")
         if note:
@@ -240,7 +272,7 @@ async def get_translation(url: str, language: str) -> str:
         )
         if current.get("data", {}).get("status") != "completed":
             await api_request(
-                "POST", f"/api/videos/{video_id}/translate", json_body={"language": language}
+                "POST", f"/api/videos/{video_id}/translate", json_body={"language": language, **({"max_credit_units": max_credit_units} if max_credit_units is not None else {})}
             )
             status = await wait_for_lock(
                 f"/api/videos/{video_id}/translate/{language}/status", deadline
@@ -257,14 +289,14 @@ async def get_translation(url: str, language: str) -> str:
         return error_text(error)
 
 
-@mcp.tool(name="get_subtitles", description="Generate translated SRT or VTT subtitles for a YouTube video.")
-async def get_subtitles(url: str, language: str = "en", format: str = "srt") -> str:
+@mcp.tool(name="get_subtitles", description="Use this when the user wants an SRT or VTT subtitle file. Generates the translation first if needed. Pass max_credit_units for uncached work after approval.")
+async def get_subtitles(url: str, language: str = "en", format: str = "srt", max_credit_units: Optional[int] = None) -> str:
     """Return subtitle file content. Missing translations are generated automatically."""
     try:
         if format not in ("srt", "vtt"):
             raise APIError("format must be 'srt' or 'vtt'.")
         deadline = asyncio.get_running_loop().time() + TOOL_TIMEOUT
-        video_id, note = await ensure_video(url, deadline)
+        video_id, note = await ensure_video(url, deadline, max_credit_units)
         if not video_id:
             raise APIError("Video submission failed.")
         if note:
@@ -274,7 +306,7 @@ async def get_subtitles(url: str, language: str = "en", format: str = "srt") -> 
         )
         if translation.get("data", {}).get("status") != "completed":
             await api_request(
-                "POST", f"/api/videos/{video_id}/translate", json_body={"language": language}
+                "POST", f"/api/videos/{video_id}/translate", json_body={"language": language, **({"max_credit_units": max_credit_units} if max_credit_units is not None else {})}
             )
             translated = await wait_for_lock(
                 f"/api/videos/{video_id}/translate/{language}/status", deadline
@@ -302,14 +334,14 @@ async def get_subtitles(url: str, language: str = "en", format: str = "srt") -> 
         return error_text(error)
 
 
-@mcp.tool(name="get_summary", description="Summarize a YouTube video in short, medium, or long form.")
-async def get_summary(url: str, language: str = "en", length: str = "medium") -> str:
+@mcp.tool(name="get_summary", description="Use this when the user wants a short, medium, or long summary of a YouTube video. Cached results are free. Pass max_credit_units for uncached work after approval.")
+async def get_summary(url: str, language: str = "en", length: str = "medium", max_credit_units: Optional[int] = None) -> str:
     """Generate a summary, using an existing translation when needed."""
     try:
         if length not in ("short", "medium", "long"):
             raise APIError("length must be 'short', 'medium', or 'long'.")
         deadline = asyncio.get_running_loop().time() + TOOL_TIMEOUT
-        video_id, note = await ensure_video(url, deadline)
+        video_id, note = await ensure_video(url, deadline, max_credit_units)
         if not video_id:
             raise APIError("Video submission failed.")
         if note:
@@ -317,7 +349,7 @@ async def get_summary(url: str, language: str = "en", length: str = "medium") ->
         await api_request(
             "POST",
             f"/api/videos/{video_id}/summarize",
-            json_body={"language": language, "length": length},
+            json_body={"language": language, "length": length, **({"max_credit_units": max_credit_units} if max_credit_units is not None else {})},
         )
         status = await wait_for_lock(
             f"/api/videos/{video_id}/summarize/status?language={language}&length={length}",
@@ -338,12 +370,12 @@ async def get_summary(url: str, language: str = "en", length: str = "medium") ->
         return error_text(error)
 
 
-@mcp.tool(name="search_video", description="Search a video transcript and return matching passages.")
-async def search_video(url: str, query: str, language: str = "en") -> str:
+@mcp.tool(name="search_video", description="Use this when the user wants to find a topic or quote inside a YouTube video. Returns matching passages with timestamps.")
+async def search_video(url: str, query: str, language: str = "en", max_credit_units: Optional[int] = None) -> str:
     """Search with context; each result includes its position in the transcript."""
     try:
         deadline = asyncio.get_running_loop().time() + TOOL_TIMEOUT
-        video_id, note = await ensure_video(url, deadline)
+        video_id, note = await ensure_video(url, deadline, max_credit_units)
         if not video_id:
             raise APIError("Video submission failed.")
         if note:

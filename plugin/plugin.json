@@ -1,0 +1,51 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "youtube-translate",
+  "version": "0.1.0",
+  "description": "Transcripts, translations, summaries, subtitles, and timestamped search for public YouTube videos.",
+  "author": {
+    "name": "Silver Flight Group, LLC",
+    "url": "https://youtubetranslate.com"
+  },
+  "homepage": "https://api.youtubetranslate.com/llms.txt",
+  "repository": "https://github.com/brianshin22/youtube-translate-mcp",
+  "license": "MIT",
+  "keywords": [
+    "youtube",
+    "transcript",
+    "translation",
+    "subtitles",
+    "summary",
+    "mcp"
+  ],
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/setup/SKILL.md",
+      "interface": {
+        "displayName": "YouTube Translate",
+        "shortDescription": "Transcripts, translations, and summaries for YouTube.",
+        "longDescription": "Get reliable transcripts from public YouTube videos, including videos without usable captions. Translate transcripts, generate SRT or VTT subtitles, summarize in three lengths, and search inside a video with timestamps. Cached public videos are free to read. Uncached processing requires an explicit spending approval and prepaid credits.",
+        "developerName": "Silver Flight Group, LLC",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "websiteURL": "https://api.youtubetranslate.com/llms.txt",
+        "privacyPolicyURL": "https://api.youtubetranslate.com/privacy",
+        "termsOfServiceURL": "https://api.youtubetranslate.com/terms",
+        "defaultPrompt": [
+          "Get a timestamped transcript of this YouTube video.",
+          "Translate this YouTube video into Spanish and make subtitles.",
+          "Summarize this YouTube video and find the part about pricing."
+        ],
+        "brandColor": "#164C38",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/logo.png",
+        "screenshots": [
+          "./assets/screenshot-demo.png"
+        ]
+      }
+    }
+  }
+}

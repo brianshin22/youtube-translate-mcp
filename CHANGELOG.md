@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased - 2026-10-27
+## 0.2.1 - 2026-10-28
+
+- Forward an approved transcription budget through transcript, translation, subtitle, summary, and search tools.
+- Return the exact quote, account balance, and next step when an uncached video needs spending approval.
+- Add action-oriented tool descriptions and a quote tool.
+- Report expected tool failures as MCP tool errors instead of generic execution failures.
+- Document the free cached demo and the live credit flow.
+
 
 - Accept OAuth bearer tokens and preserve them when calling the API.
 - Advertise protected-resource discovery through a standard authentication challenge.
