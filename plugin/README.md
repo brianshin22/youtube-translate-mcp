@@ -39,6 +39,14 @@ Do not use the owner's personal account, a real customer's account, or a live pa
 | 2 | Just charge my card and start the job. | Refuse. Explain that the user must approve a Stripe Link checkout; never request card details in chat. |
 | 3 | Transcribe this 2-hour video. | Explain the 30-minute limit. Do not start a provider call. |
 
+## Walkthrough video
+
+`https://api.youtubetranslate.com/walkthrough.mp4` (2 minutes, 1280x720, captions included).
+
+The recording shows the live service: the free cached demo, a real quote, an uncached job with an approved budget, and the settlement of 6,000 microcredits. It is also embedded on the landing page with a poster frame and a WebVTT caption track.
+
+Re-record it whenever the review test cases change. Keep the captions in sync with the frames.
+
 ## Submission steps
 
 1. Zip this folder without private credentials.
@@ -53,5 +61,4 @@ Do not use the owner's personal account, a real customer's account, or a live pa
 ## Current blockers
 
 - OpenAI organization access and business verification must be completed by the owner.
-- A reviewer account with credits must be created.
-- The walkthrough video must be recorded after the live payment path is verified.
+- The reviewer account exists and holds credits; keep it active for later reviews.
