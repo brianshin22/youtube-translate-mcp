@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased - 2026-10-28
+
+- Cached MCP reads now cost 2,000 microcredits. The public demo endpoint, not the MCP tools, covers two example videos for free.
+- Tool descriptions state the cached read price and the demo distinction.
+
 ## 0.2.1 - 2026-10-28
 
 - Forward an approved transcription budget through transcript, translation, subtitle, summary, and search tools.

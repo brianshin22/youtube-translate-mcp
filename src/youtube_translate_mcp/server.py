@@ -230,7 +230,7 @@ async def get_video_status(video_id: str) -> str:
         return error_text(error)
 
 
-@mcp.tool(name="get_transcript", description="Use this when the user wants the words spoken in a YouTube video. Returns the transcript, optionally with timestamps. Cached public videos are free. For uncached videos, first call get_processing_quote and get the user's approval, then pass max_credit_units.")
+@mcp.tool(name="get_transcript", description="Use this when the user wants the words spoken in a YouTube video. Returns the transcript, optionally with timestamps. Cached reads cost 2,000 microcredits. The public demo endpoint covers two examples for free. For uncached videos, first call get_processing_quote and get the user's approval, then pass max_credit_units.")
 async def get_transcript(url: str, include_timestamps: bool = False, max_credit_units: Optional[int] = None) -> str:
     """Return transcript text, or timestamped segments when requested."""
     try:
@@ -256,7 +256,7 @@ async def get_transcript(url: str, include_timestamps: bool = False, max_credit_
         return error_text(error)
 
 
-@mcp.tool(name="get_translation", description="Use this when the user wants a YouTube transcript in another language. Cached results are free. For uncached work, pass an approved max_credit_units from get_processing_quote.")
+@mcp.tool(name="get_translation", description="Use this when the user wants a YouTube transcript in another language. Cached reads cost 2,000 microcredits. For uncached work, pass an approved max_credit_units from get_processing_quote.")
 async def get_translation(url: str, language: str, max_credit_units: Optional[int] = None) -> str:
     """Translate a transcript. Use a two-letter ISO language code such as es or ko."""
     try:
@@ -289,7 +289,7 @@ async def get_translation(url: str, language: str, max_credit_units: Optional[in
         return error_text(error)
 
 
-@mcp.tool(name="get_subtitles", description="Use this when the user wants an SRT or VTT subtitle file. Generates the translation first if needed. Pass max_credit_units for uncached work after approval.")
+@mcp.tool(name="get_subtitles", description="Use this when the user wants an SRT or VTT subtitle file. Cached reads cost 2,000 microcredits. Generates the translation first if needed. Pass max_credit_units for uncached work after approval.")
 async def get_subtitles(url: str, language: str = "en", format: str = "srt", max_credit_units: Optional[int] = None) -> str:
     """Return subtitle file content. Missing translations are generated automatically."""
     try:
@@ -334,7 +334,7 @@ async def get_subtitles(url: str, language: str = "en", format: str = "srt", max
         return error_text(error)
 
 
-@mcp.tool(name="get_summary", description="Use this when the user wants a short, medium, or long summary of a YouTube video. Cached results are free. Pass max_credit_units for uncached work after approval.")
+@mcp.tool(name="get_summary", description="Use this when the user wants a short, medium, or long summary of a YouTube video. Cached reads cost 2,000 microcredits. Pass max_credit_units for uncached work after approval.")
 async def get_summary(url: str, language: str = "en", length: str = "medium", max_credit_units: Optional[int] = None) -> str:
     """Generate a summary, using an existing translation when needed."""
     try:

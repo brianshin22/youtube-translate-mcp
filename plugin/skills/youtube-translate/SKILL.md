@@ -9,7 +9,7 @@ Use the YouTube Translate tools for public YouTube videos. Do not claim a transc
 
 ## Cached videos
 
-Call `get_transcript` first for a transcript. Cached public videos cost nothing and return immediately. Use `include_timestamps=true` when the user asks for timestamps, quotes, or specific moments.
+Call `get_transcript` first for a transcript. A cached read costs 2,000 microcredits and returns immediately. The public demo endpoint, not the MCP tool, covers two example videos for free. Use `include_timestamps=true` when the user asks for timestamps, quotes, or specific moments.
 
 ## Uncached videos
 
