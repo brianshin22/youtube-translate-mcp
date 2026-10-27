@@ -15,13 +15,15 @@ A [Model Context Protocol (MCP)](https://github.com/anthropics/anthropic-cookboo
 
 Production endpoint: `https://api.youtubetranslate.com/mcp` using streamable HTTP.
 
-Send the caller's YouTube Translate API key on every request:
+Preferred authentication is OAuth. The server returns a protected-resource discovery challenge, and the API provides public-client registration, S256 PKCE, owner consent, short-lived access tokens, refresh rotation, and revocation. Send `Authorization: Bearer <access token>` after linking your account.
+
+For legacy clients, send an account-owned user key on every request:
 
 ```text
 X-API-Key: ut-user-...
 ```
 
-For local stdio, `YOUTUBE_TRANSLATE_API_KEY` remains supported. The hosted server does not use one shared key: the request header is scoped to that request, so separate users do not share credentials.
+For local stdio, `YOUTUBE_TRANSLATE_API_KEY` remains supported. Every hosted request is authenticated before tool discovery or invocation, and the transport is stateless. No shared administrative credential is used. The account page provides a disconnect action that revokes an assistant's token family.
 
 ### Tools
 
@@ -45,7 +47,7 @@ uv run youtube-translate-mcp --transport streamable-http --host 0.0.0.0 --port 8
 
 ### ChatGPT and Claude
 
-Use the hosted URL and add an `X-API-Key` request header in the custom connector. Public directory submission is not complete; it requires OAuth, review materials, and test evidence. Do not promise in-chat purchase: current ChatGPT plugin rules prohibit selling digital credits through the plugin.
+Use the hosted URL with OAuth where the client supports it. Account-owned API-key headers remain an alternative. The production OAuth flow and MCP invocation have been verified with an outside client, but not through ChatGPT's or Claude's own connection UI. Google account signup still needs this application's configured OIDC client. Public directory review and submission are not complete. Do not promise in-chat purchase: current ChatGPT plugin rules prohibit selling digital credits through the plugin.
 
 ## Installation
 

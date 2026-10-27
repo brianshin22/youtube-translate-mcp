@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased - 2026-10-27
+
+- Accept OAuth bearer tokens and preserve them when calling the API.
+- Advertise protected-resource discovery through a standard authentication challenge.
+- Validate credentials before exposing tools, not only when a tool calls the backend.
+- Use a stateless hosted transport and an explicit origin allowlist.
+- Verified a production MCP transcript request, refresh rotation, and immediate revocation with an outside client.
+- Keep API keys for account-owned legacy clients. Actual ChatGPT and Claude connection UI tests are still pending.
+
 ## 0.2.0 - 2026-10-26
 
 ### Added
@@ -19,6 +28,6 @@
 - Transport security accepts the production reverse-proxy hostname.
 
 ### Known limitations
-- No OAuth. Custom connectors must send an API key header.
+- At the 0.2.0 release, OAuth was not available. See the unreleased section for the implemented OAuth flow.
 - No public directory submission.
 - Long tool calls return a processing message after 75 seconds.

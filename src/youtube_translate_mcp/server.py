@@ -29,6 +29,7 @@ logging.basicConfig(
 logger = logging.getLogger("youtube-translate-mcp")
 
 API_BASE = os.getenv("YT_TRANSLATE_API_BASE", "https://api.youtubetranslate.com").rstrip("/")
+PUBLIC_ORIGIN = os.getenv("PUBLIC_API_ORIGIN", "https://api.youtubetranslate.com").rstrip("/")
 REQUEST_HEADER = "X-API-Key"
 TOOL_TIMEOUT = float(os.getenv("TOOL_TIMEOUT_SECONDS", "75"))
 POLL_INTERVAL = float(os.getenv("POLL_INTERVAL_SECONDS", "2.5"))
@@ -70,11 +71,15 @@ async def api_request(
     json_body: Optional[dict[str, Any]] = None,
     allow_statuses: tuple[int, ...] = (),
 ) -> Any:
+    credential = current_api_key()
     headers = {
-        REQUEST_HEADER: current_api_key(),
         "Accept": "application/json",
-        "User-Agent": "YouTubeTranslateMCP/2.0",
+        "User-Agent": "YouTubeTranslateMCP/2.1",
     }
+    if credential.startswith("Bearer "):
+        headers["Authorization"] = credential
+    else:
+        headers[REQUEST_HEADER] = credential
     async with httpx.AsyncClient(timeout=90.0, follow_redirects=True) as client:
         response = await client.request(
             method,
@@ -362,17 +367,35 @@ async def search_video(url: str, query: str, language: str = "en") -> str:
 
 
 class APIKeyMiddleware(BaseHTTPMiddleware):
-    """Capture the caller's API key for tool calls and reject missing keys."""
+    """Validate every request before discovery or invocation, preserving OAuth."""
 
     async def dispatch(self, request, call_next):
         if request.url.path == "/health":
             return JSONResponse({"status": "ok"})
-        key = request.headers.get(REQUEST_HEADER) or request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
-        if not key:
-            return JSONResponse(
-                {"error": "X-API-Key header is required"}, status_code=401
-            )
-        token = _api_key.set(key)
+        authorization = request.headers.get("Authorization", "")
+        key = request.headers.get(REQUEST_HEADER)
+        credential = authorization if authorization.startswith("Bearer ") else key
+        challenge = {
+            "WWW-Authenticate": f'Bearer resource_metadata="{PUBLIC_ORIGIN}/.well-known/oauth-protected-resource/mcp"'
+        }
+        if not credential:
+            return JSONResponse({"error": "Connect your account with OAuth or supply X-API-Key"},
+                                status_code=401, headers=challenge)
+        headers = {"User-Agent": "YouTubeTranslateMCP/2.1"}
+        if authorization.startswith("Bearer "):
+            headers["Authorization"] = authorization
+        else:
+            headers[REQUEST_HEADER] = key
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                response = await client.get(f"{API_BASE}/api/account", headers=headers)
+            if response.status_code != 200:
+                status = response.status_code if response.status_code in (401, 403) else 503
+                return JSONResponse({"error": "Account authentication failed"}, status_code=status,
+                                    headers=challenge if status == 401 else {})
+        except httpx.HTTPError:
+            return JSONResponse({"error": "Authentication service unavailable"}, status_code=503)
+        token = _api_key.set(credential)
         try:
             return await call_next(request)
         finally:
@@ -391,10 +414,11 @@ def build_http_app():
     security = TransportSecuritySettings(
         enable_dns_rebinding_protection=True,
         allowed_hosts=hosts,
-        allowed_origins=["*"],
+        allowed_origins=[PUBLIC_ORIGIN, "https://chatgpt.com", "https://claude.ai"],
     )
     app = mcp.streamable_http_app(
         streamable_http_path="/mcp",
+        stateless_http=True,
         transport_security=security,
     )
     app.add_middleware(APIKeyMiddleware)
