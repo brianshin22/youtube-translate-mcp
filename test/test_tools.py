@@ -47,3 +47,19 @@ class ToolTests(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class ToolAnnotationTests(unittest.IsolatedAsyncioTestCase):
+    async def test_tool_list_exposes_explicit_safety_booleans(self):
+        async with Client(server.mcp) as client:
+            result = await client.list_tools()
+            tools = result.tools
+        self.assertEqual(len(tools), 8)
+        for tool in tools:
+            with self.subTest(tool=tool.name):
+                self.assertIsNotNone(tool.annotations)
+                annotations = tool.annotations.model_dump(by_alias=True, exclude_none=True)
+                for field in ('readOnlyHint', 'destructiveHint', 'openWorldHint'):
+                    self.assertIs(type(annotations[field]), bool)
+                self.assertEqual(annotations['readOnlyHint'], tool.name in ('get_processing_quote', 'get_video_status'))
+                self.assertFalse(annotations['destructiveHint'])
+                self.assertEqual(annotations['openWorldHint'], tool.name != 'get_video_status')
