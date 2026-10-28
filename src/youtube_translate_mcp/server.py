@@ -179,7 +179,7 @@ async def ensure_video(url: str, deadline: float, max_credit_units: Optional[int
     return video_id, ""
 
 
-@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=True), name="get_processing_quote", description="Get a processing credit quote and account balance without starting paid work. Obtain explicit spending approval before using a budget.")
+@mcp.tool(annotations=ToolAnnotations(title="Get processing quote", readOnlyHint=True, destructiveHint=False, openWorldHint=True), name="get_processing_quote", title="Get processing quote", description="Get a processing credit quote and account balance without starting paid work. Obtain explicit spending approval before using a budget.")
 async def get_processing_quote(url: str, operation: str = "transcribe", language: str = "en", length: str = "medium") -> str:
     """Quote one operation. No purchase, wallet access, or provider work is performed."""
     try:
@@ -194,7 +194,7 @@ async def get_processing_quote(url: str, operation: str = "transcribe", language
         return error_text(error)
 
 
-@mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="start_video", description="Start processing a YouTube video and return its job ID without waiting.")
+@mcp.tool(annotations=ToolAnnotations(title="Start video processing", readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="start_video", title="Start video processing", description="Start processing a YouTube video and return its job ID without waiting.")
 async def start_video(url: str, max_credit_units: Optional[int] = None) -> str:
     """Queue a YouTube URL for transcript processing."""
     try:
@@ -211,7 +211,7 @@ async def start_video(url: str, max_credit_units: Optional[int] = None) -> str:
         return error_text(error)
 
 
-@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=False), name="get_video_status", description="Check processing status for a YouTube Translate video.")
+@mcp.tool(annotations=ToolAnnotations(title="Get video status", readOnlyHint=True, destructiveHint=False, openWorldHint=False), name="get_video_status", title="Get video status", description="Check processing status for a YouTube Translate video.")
 async def get_video_status(video_id: str) -> str:
     """Get status using either the API job ID or the YouTube video ID."""
     try:
@@ -231,7 +231,7 @@ async def get_video_status(video_id: str) -> str:
         return error_text(error)
 
 
-@mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="get_transcript", description="Use this when the user wants the words spoken in a YouTube video. Returns the transcript, optionally with timestamps. Cached reads cost 2,000 microcredits. The public demo endpoint covers two examples for free. For uncached videos, first call get_processing_quote and get the user's approval, then pass max_credit_units.")
+@mcp.tool(annotations=ToolAnnotations(title="Get video transcript", readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="get_transcript", title="Get video transcript", description="Use this when the user wants the words spoken in a YouTube video. Returns the transcript, optionally with timestamps. Cached reads cost 2,000 microcredits. The public demo endpoint covers two examples for free. For uncached videos, first call get_processing_quote and get the user's approval, then pass max_credit_units.")
 async def get_transcript(url: str, include_timestamps: bool = False, max_credit_units: Optional[int] = None) -> str:
     """Return transcript text, or timestamped segments when requested."""
     try:
@@ -257,7 +257,7 @@ async def get_transcript(url: str, include_timestamps: bool = False, max_credit_
         return error_text(error)
 
 
-@mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="get_translation", description="Use this when the user wants a YouTube transcript in another language. Cached reads cost 2,000 microcredits. For uncached work, pass an approved max_credit_units from get_processing_quote.")
+@mcp.tool(annotations=ToolAnnotations(title="Translate video transcript", readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="get_translation", title="Translate video transcript", description="Use this when the user wants a YouTube transcript in another language. Cached reads cost 2,000 microcredits. For uncached work, pass an approved max_credit_units from get_processing_quote.")
 async def get_translation(url: str, language: str, max_credit_units: Optional[int] = None) -> str:
     """Translate a transcript. Use a two-letter ISO language code such as es or ko."""
     try:
@@ -290,7 +290,7 @@ async def get_translation(url: str, language: str, max_credit_units: Optional[in
         return error_text(error)
 
 
-@mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="get_subtitles", description="Use this when the user wants an SRT or VTT subtitle file. Cached reads cost 2,000 microcredits. Generates the translation first if needed. Pass max_credit_units for uncached work after approval.")
+@mcp.tool(annotations=ToolAnnotations(title="Get video subtitles", readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="get_subtitles", title="Get video subtitles", description="Use this when the user wants an SRT or VTT subtitle file. Cached reads cost 2,000 microcredits. Generates the translation first if needed. Pass max_credit_units for uncached work after approval.")
 async def get_subtitles(url: str, language: str = "en", format: str = "srt", max_credit_units: Optional[int] = None) -> str:
     """Return subtitle file content. Missing translations are generated automatically."""
     try:
@@ -335,7 +335,7 @@ async def get_subtitles(url: str, language: str = "en", format: str = "srt", max
         return error_text(error)
 
 
-@mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="get_summary", description="Use this when the user wants a short, medium, or long summary of a YouTube video. Cached reads cost 2,000 microcredits. Pass max_credit_units for uncached work after approval.")
+@mcp.tool(annotations=ToolAnnotations(title="Summarize video", readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="get_summary", title="Summarize video", description="Use this when the user wants a short, medium, or long summary of a YouTube video. Cached reads cost 2,000 microcredits. Pass max_credit_units for uncached work after approval.")
 async def get_summary(url: str, language: str = "en", length: str = "medium", max_credit_units: Optional[int] = None) -> str:
     """Generate a summary, using an existing translation when needed."""
     try:
@@ -371,7 +371,7 @@ async def get_summary(url: str, language: str = "en", length: str = "medium", ma
         return error_text(error)
 
 
-@mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="search_video", description="Use this when the user wants to find a topic or quote inside a YouTube video. Returns matching passages with timestamps.")
+@mcp.tool(annotations=ToolAnnotations(title="Search within video", readOnlyHint=False, destructiveHint=False, openWorldHint=True), name="search_video", title="Search within video", description="Use this when the user wants to find a topic or quote inside a YouTube video. Returns matching passages with timestamps.")
 async def search_video(url: str, query: str, language: str = "en", max_credit_units: Optional[int] = None) -> str:
     """Search with context; each result includes its position in the transcript."""
     try:

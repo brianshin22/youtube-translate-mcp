@@ -1,0 +1,34 @@
+{
+  "name": "YouTube Translate",
+  "slug": "youtube-translate",
+  "one_liner": "Get transcripts, translations, subtitles, summaries, and timestamped search for public YouTube videos.",
+  "description": "Turn public YouTube videos into timestamped transcripts, translated text, SRT or VTT subtitles, and summaries. Search within a video for a topic or quotation and return matching passages with timestamps. Useful for research, studying, content analysis, and multilingual accessibility. Supports public sources up to 30 minutes. Transcripts and generated text may contain errors. Does not bypass private, age-restricted, or members-only access controls, and does not provide downloadable audio or video.",
+  "categories": [
+    "Productivity",
+    "Research"
+  ],
+  "server_url": "https://api.youtubetranslate.com/mcp",
+  "documentation_url": "https://youtubetranslate.com/docs/",
+  "privacy_policy_url": "https://api.youtubetranslate.com/privacy",
+  "support_contact": "brian@silverflightgroup.com",
+  "company": {
+    "name": "Silver Flight Group, LLC",
+    "website": "https://youtubetranslate.com",
+    "contact": "brian@silverflightgroup.com"
+  },
+  "authentication": {
+    "required": true,
+    "method": "OAuth 2.0 with PKCE S256",
+    "registration": "Dynamic client registration",
+    "metadata_url": "https://api.youtubetranslate.com/.well-known/oauth-authorization-server",
+    "scopes": [
+      "videos:read",
+      "videos:process"
+    ]
+  },
+  "prerequisites": "An account authorization is required. Users can create a key-based account during connection or use an existing account key. Cached content and new processing use prepaid service credits. The two public demo videos are available through a separate unauthenticated demo endpoint; normal MCP calls are metered.",
+  "data_handling": "The MCP server calls our first-party YouTube Translate REST API. The backend retrieves publicly accessible YouTube audio, uses Groq for transcription, OpenAI for translation and summaries, and AWS S3 for shared artifact storage. It receives tool arguments and account authorization, not general conversation history. No personal health information or sponsored-content use case is offered. Do not submit private or sensitive content.",
+  "commerce": "Tools consume prepaid service credits and may create processing jobs. No tool transfers money, buys credits, accesses a payer wallet, or generates AI audio/video/images. Credit purchases take place separately through human-authorized Stripe Link checkout.",
+  "tool_behavior": "Quote and status are read-only. Other tools may consume credits or create artifacts and are marked non-read-only. All are non-destructive; none deletes user data. Tools involving public sources are marked open-world.",
+  "tested": "All eight tools passed live authenticated MCP JSON-RPC calls on 2026-10-28. Claude custom-connector UI testing and MCP Inspector testing remain outstanding. Do not attest those tests are complete yet."
+}

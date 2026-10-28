@@ -1,0 +1,59 @@
+{
+  "testedAt": "2026-10-28T02:15:16.139Z",
+  "surface": "Hosted MCP JSON-RPC, account API key authentication (not a Claude UI test)",
+  "results": [
+    {
+      "tool": "get_processing_quote",
+      "success": true,
+      "milliseconds": 2207,
+      "characters": 599
+    },
+    {
+      "tool": "start_video",
+      "success": true,
+      "milliseconds": 3777,
+      "characters": 156
+    },
+    {
+      "tool": "get_video_status",
+      "success": true,
+      "milliseconds": 771,
+      "characters": 166
+    },
+    {
+      "tool": "get_transcript",
+      "success": true,
+      "milliseconds": 4978,
+      "characters": 223
+    },
+    {
+      "tool": "get_translation",
+      "success": true,
+      "milliseconds": 5669,
+      "characters": 201
+    },
+    {
+      "tool": "get_subtitles",
+      "success": true,
+      "milliseconds": 12978,
+      "characters": 333
+    },
+    {
+      "tool": "get_summary",
+      "success": true,
+      "milliseconds": 7457,
+      "characters": 347
+    },
+    {
+      "tool": "search_video",
+      "success": true,
+      "milliseconds": 7345,
+      "characters": 221
+    }
+  ],
+  "invalidUrlRejected": true,
+  "invalidFormatRejected": true,
+  "chargedUnits": 14000,
+  "claudeUITested": false,
+  "mcpInspectorTested": false
+}
