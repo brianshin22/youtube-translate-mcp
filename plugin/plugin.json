@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "youtube-translate",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Transcripts, translations, summaries, subtitles, and timestamped search for public YouTube videos.",
   "author": {
     "name": "Silver Flight Group, LLC",
@@ -24,7 +24,7 @@
       "interface": {
         "displayName": "YouTube Translate",
         "shortDescription": "Transcripts and translations",
-        "longDescription": "Get reliable transcripts from public YouTube videos, including videos without usable captions. Translate transcripts, generate SRT or VTT subtitles, summarize in three lengths, and search inside a video with timestamps. Previously processed videos are served from retained storage, so repeat requests return immediately. New processing requires an explicit approval step before any work is queued, and the assistant always shows the maximum cost before asking.",
+        "longDescription": "Turn public YouTube videos into timestamped transcripts, translations, SRT or VTT subtitles, and summaries. Search inside a video for a topic or quotation and return matching passages with timestamps. Supports public videos up to 30 minutes. Speech recognition and generated text can contain errors. Private, members-only, and age-restricted sources are not supported. The service returns text, not downloadable video or audio.",
         "developerName": "Silver Flight Group, LLC",
         "category": "Productivity",
         "capabilities": [
