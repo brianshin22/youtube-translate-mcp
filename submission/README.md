@@ -7,7 +7,7 @@ Status recorded October 28, 2026. This file is the product-specific handoff; the
 | Channel | Recorded state | What this does not prove |
 |---|---|---|
 | Official MCP Registry | `io.github.brianshin22/youtube-translate`, v0.2.1, observed active | Approval by a chat-product directory |
-| ChatGPT | Owner reported **submitted for review** on October 28, 2026 | Approval or publication; not yet verified |
+| ChatGPT | **Rejected**; OpenAI email read October 28, 2026 | Neither approved nor published; appeal/resubmission offered |
 | Claude | Materials prepared in [`claude/`](claude/); no portal submission performed | Claude UI or Inspector testing, review, or publication |
 | Third-party directories | Existing entries found for PulseMCP, Glama, mcp.so, LobeHub, and mcpservers.org; listing freshness varies | Usage or new submissions to those directories |
 | Smithery | No confirmed listing/submission completed during this launch | The README badge is not evidence of a working listing |
@@ -47,6 +47,32 @@ Manifest source is [`../plugin/plugin.json`](../plugin/plugin.json). ZIP filenam
 | Reviewer username/password form mismatch | Service signs in with an account key, not a username/password pair | Login instructions explain the dedicated key goes into "Your user API key" on our site, then OAuth consent. No key in public artifacts |
 
 Relevant code changes: API commits `f210066` (Link popup COOP), `b2819e4` (consent CSP and expanded privacy); MCP commits `1cd77bd` (review metadata), `d55b769` (description), `a84f4b8` (annotations), and `885ccaf` (titles and Claude materials).
+
+## Rejection received and policy reassessment
+
+OpenAI's email, subject `ChatGPT Plugin Submission Rejected [asdk_app_6ae13d56921c81918e89d6b3ad061995]`, was sent to the submission contact and read in the owner's forwarded mailbox. It named three findings:
+
+1. Commerce for disallowed offerings, including digital goods/services.
+2. Name/description implying affiliation or using potentially trademarked terms.
+3. Tool annotation mismatches; the email requested explicit booleans and justifications without naming an offending tool.
+
+The email explicitly permits remediation and resubmission, or appeal by replying. No appeal or resubmission has been sent as part of this reassessment.
+
+### Concrete policy gaps
+
+The current [plugin guidelines](https://developers.openai.com/plugins/plugin-guidelines) prohibit selling digital services/credits through a directory plugin, directly or indirectly, and prohibit links to checkout or pages initiating a purchase. They permit access to an existing paid account and informational entitlement explanations. Our shipped setup and usage skills direct an unfunded user to the account payments page, so the commerce finding is not addressed merely by removing pricing from the public description or deleting a commerce flag. Do not hide this behavior or misdeclare monetization to pass review.
+
+The product name contains YouTube, a third-party brand. The email does not specify the exact offending text or say that changing the name alone guarantees approval. Rebranding and an independence statement may address confusion but do not establish permission to acquire or process third-party content.
+
+All eight tools were verified to emit explicit booleans before submission. The remaining annotation finding therefore may concern semantic correctness or an older scan, not missing keys. Tools charge credits, persist artifacts, and can perform non-reversible provider work; non-destructive flags need reevaluation against OpenAI's explicit treatment of irreversible transactions and overwrites. Do not simply repeat the prior claim that every effect is an additive, non-destructive write. Current guidelines say annotation justifications are no longer required, while the rejection email asks for them; seek clarification or include concise behavior explanations in any appeal.
+
+A further policy risk not cited in the email: unofficial third-party connectors, unauthorized scraping, and circumvention of third-party restrictions. Being able to retrieve public YouTube audio does not establish terms compliance or permission. The residential relay is an engineering mechanism, not evidence of authorization. Assess this before investing in another directory submission or implying that a rename resolves the product's eligibility.
+
+### Distribution and website implications
+
+Do not advertise a public ChatGPT Directory install or assume saying the product name gives ChatGPT its tools. Distinguish existing/custom MCP connections (availability depends on client/workspace) from directory approval. API-capable coding agents can use the first-party REST API directly, but ordinary chat browsing is not an authenticated API runtime. The landing-page claim that its transcript-plus-summary MCP prompt is free is also wrong: free demos use a separate endpoint, not normal authenticated MCP calls.
+
+Recommended near-term focus: reliable REST and hosted MCP access for supported clients, honest setup and pricing, and compliant source acquisition. Pause public-directory approval claims pending an owner decision on a policy-compliant resubmission or appeal. Website copy changes were not performed by this rejection documentation update.
 
 ## Tests performed and limits of evidence
 
