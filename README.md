@@ -207,6 +207,10 @@ For more information on using MCP servers with Claude Desktop, see the [MCP docu
  - The normal MCP Inspector has a built in timeout for MCP tool calls, which is generally too short for these video processing calls (as of March 13, 2025). Better to use Claude Desktop and look at the MCP logs from Claude at ~/Library/Logs/Claude/mcp-server-{asfasf}.log.
  - Can do tail -f {log-file}.log to follow as you interact with Claude.
 
+## Directory submissions and launch learnings
+
+See [submission/README.md](submission/README.md) for the ChatGPT review status, Claude preparation, exact findings and fixes, evidence, and remaining steps. The [cross-product submission playbook](https://github.com/silver-flight-group/skills/blob/main/docs/mcp-directory-submissions.md) captures reusable requirements and failure modes for future services.
+
 ## License
 
 MIT
